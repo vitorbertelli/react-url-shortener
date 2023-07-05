@@ -1,23 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
+import UrlForm from "./component/UrlForm";
+import UrlShortenedResult from "./component/UrlShortenedResult";
+import { useState } from "react";
+import shortenerUrl from "./service/shortenerUrl.js";
+import WarningMessage from "./component/WarningMessage";
 
 function App() {
+
+  const [url, setUrl] = useState("");
+  const [shortUrl, setShortUrl] = useState("");
+  const [check, setCheck] = useState(true);
+
+  const regex = /^(ftp|http|https):\/\/[^ "]+$/;
+
+  const checkUrl = (e) => {
+    e.preventDefault();
+    if (regex.test(url)) {
+      setCheck(true);
+      shortenUrl(url);
+    } else {
+      setCheck(false);
+    }
+  }
+
+  const shortenUrl = (url) => {
+    shortenerUrl(url)
+    .then(function (response) {
+      setShortUrl(response);
+      setUrl("");
+    });
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <UrlForm checkUrl={checkUrl} url={url} setUrl={setUrl}/>
+      {check ? <UrlShortenedResult shortUrl={shortUrl} />
+      : <WarningMessage msg={"Invalid URL"} />}
     </div>
   );
 }
